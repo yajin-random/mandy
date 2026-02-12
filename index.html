@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For Mandyyy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --pink: #ff4d6d; --cream: #fff5f5; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            margin: 0; background: var(--cream); font-family: 'Quicksand', sans-serif; 
+            overflow: hidden; height: 100vh; display: flex; justify-content: center; align-items: center;
+            touch-action: manipulation;
+        }
+
+        .floating-heart {
+            position: absolute; color: var(--pink); pointer-events: none;
+            animation: floatUp 1.5s ease-out forwards; z-index: 999;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+        }
+
+        .screen { display: none; text-align: center; width: 90%; max-width: 400px; animation: fadeIn 0.8s ease; }
+        .active { display: block; }
+
+        #timer { font-size: 2.5rem; color: var(--pink); font-weight: 600; margin-top: 20px; }
+        .waiting-text { color: #888; font-size: 1.1rem; }
+
+        /* Phase 2: Dual Photo Gallery */
+        .photo-container {
+            background: white; padding: 10px 10px 40px 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 5px;
+            position: relative; width: 100%; max-width: 350px; margin: 0 auto;
+        }
+        .handwritten-image { width: 100%; height: auto; border-radius: 2px; display: block; }
+        .nav-btn {
+            position: absolute; top: 40%; transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.8); border: none; border-radius: 50%;
+            width: 35px; height: 35px; font-size: 1.2rem; cursor: pointer; color: var(--pink);
+            display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .prev { left: -15px; }
+        .next { right: -15px; }
+        .photo-caption { font-family: 'Dancing Script', cursive; font-size: 1.4rem; margin-top: 15px; color: #333; }
+
+        /* Video/Final */
+        .video-container { width: 100%; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.1); background: #000; }
+        video { width: 100%; display: block; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px);
+            padding: 40px 20px; border-radius: 30px; box-shadow: 0 8px 32px 0 rgba(255, 77, 109, 0.2);
+        }
+        .elegant-title { font-family: 'Dancing Script', cursive; font-size: 3rem; background: linear-gradient(45deg, #ff4d6d, #ff8fa3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; }
+        .heart-btn-mini { background: none; border: none; color: var(--pink); font-size: 3rem; cursor: pointer; animation: pulse 2s infinite; }
+        .unlock-btn, .final-btn { background: var(--pink); color: white; border: none; padding: 15px 30px; border-radius: 50px; font-size: 1.1rem; margin-top: 20px; cursor: pointer; }
+        .hidden { display: none; }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body onclick="handleInteraction(event)">
+
+    <audio id="bgMusic" loop>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="phase1" class="screen active">
+        <p class="waiting-text">Patience, Cutie.... <br> Something will pop up in (click on the screen for a surprise tho):</p>
+        <div id="timer">00d 00h 00m 00s</div>
+        <div id="unlock-btn-container"></div>
+    </div>
+
+    <div id="phase2" class="screen">
+        <div class="photo-container">
+            <button class="nav-btn prev" onclick="changeImage(-1)">❮</button>
+            <img id="letterImg" src="letter1.jpeg" alt="My Letter" class="handwritten-image">
+            <button class="nav-btn next" onclick="changeImage(1)">❯</button>
+            <div id="imgCaption" class="photo-caption">Page 1 of 2</div>
+        </div>
+        <button class="heart-btn-mini" onclick="showPhase(3)">❤️</button>
+    </div>
+
+    <div id="phase3" class="screen">
+        <div class="video-container">
+            <video id="myVideo" controls playsinline>
+                <source src="video.mp4" type="video/mp4">
+            </video>
+        </div>
+        <p style="margin-top:15px; font-style: italic; color:#555;">Not talented enough to do the animations but Dubbed by me :) </p>
+        <button id="videoNextBtn" class="final-btn hidden" onclick="showPhase(4)">CLICK HERE MADS</button>
+    </div>
+
+    <div id="phase4" class="screen">
+        <div class="glass-card">
+            <h1 class="elegant-title">I Love You Mandyyy</h1>
+            <p style="font-weight:600; color:#7d7d7d; letter-spacing:2px;">and I miss you<br>SOOOOOOOOOOO MUCH</p>
+        </div>
+        <p style="margin-top: 30px; color: #484848; font-size: 0.8rem;">Thank you for being you. Never change please and <br> please continue loving me or I'll be very sad :(</p>
+    </div>
+
+    <script>
+        const unlockDate = new Date(2026, 1, 12, 0, 0, 0).getTime(); 
+        const bgMusic = document.getElementById('bgMusic');
+        let unlocked = false;
+        let musicStarted = false;
+        let currentImg = 1;
+
+        function handleInteraction(e) {
+            spawnHeart(e);
+            if (!musicStarted) {
+                bgMusic.volume = 0.03;
+                bgMusic.play();
+                musicStarted = true;
+            }
+        }
+
+        // IMAGE GALLERY LOGIC
+        function changeImage(dir) {
+            currentImg += dir;
+            if (currentImg > 2) currentImg = 1;
+            if (currentImg < 1) currentImg = 2;
+            document.getElementById('letterImg').src = `letter${currentImg}.jpeg`;
+            document.getElementById('imgCaption').innerText = `Page ${currentImg} of 2`;
+        }
+
+        function updateTimer() {
+            const now = new Date().getTime();
+            const diff = unlockDate - now;
+            if (diff <= 0) {
+                if (!unlocked) {
+                    unlocked = true;
+                    document.getElementById('timer').style.display = 'none';
+                    document.querySelector('.waiting-text').innerHTML = "IT'S TIIIIIMEEE ! ✨";
+                    document.getElementById('unlock-btn-container').innerHTML = `<button class="unlock-btn" onclick="showPhase(2)">Open Your Letter</button>`;
+                }
+                return;
+            }
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+            document.getElementById('timer').innerText = `${d}d ${h}h ${m}m ${s}s`;
+        }
+
+        setInterval(updateTimer, 1000);
+        updateTimer();
+
+        function showPhase(phaseNum) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('phase' + phaseNum).classList.add('active');
+            if (phaseNum === 3) {
+                bgMusic.pause();
+                const v = document.getElementById('myVideo');
+                v.onended = () => document.getElementById('videoNextBtn').classList.remove('hidden');
+            } else if (musicStarted) {
+                bgMusic.play();
+            }
+        }
+
+        function spawnHeart(e) {
+            const heart = document.createElement('div');
+            heart.innerHTML = '❤️';
+            heart.className = 'floating-heart';
+            const x = e.clientX || (e.touches && e.touches[0].clientX);
+            const y = e.clientY || (e.touches && e.touches[0].clientY);
+            heart.style.left = (x - 10) + 'px';
+            heart.style.top = (y - 10) + 'px';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 1500);
+        }
+    </script>
+</body>
+</html>
