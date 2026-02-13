@@ -49,13 +49,22 @@
         /* Video/Final */
         .video-container { width: 100%; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.1); background: #000; }
         video { width: 100%; display: block; }
+        
         .glass-card {
             background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px);
-            padding: 40px 20px; border-radius: 30px; box-shadow: 0 8px 32px 0 rgba(255, 77, 109, 0.2);
+            -webkit-backdrop-filter: blur(10px); padding: 40px 20px; border-radius: 30px; 
+            box-shadow: 0 8px 32px 0 rgba(255, 77, 109, 0.2); border: 1px solid rgba(255, 255, 255, 0.2);
         }
         .elegant-title { font-family: 'Dancing Script', cursive; font-size: 3rem; background: linear-gradient(45deg, #ff4d6d, #ff8fa3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; }
+        
+        /* Compliment Section Styles */
+        .compliment-container { margin-top: 25px; padding: 15px; background: rgba(255, 255, 255, 0.3); border-radius: 15px; cursor: pointer; transition: 0.3s; }
+        .compliment-container:active { transform: scale(0.95); }
+        #compliment-text { font-size: 1rem; color: #555; font-style: italic; min-height: 3em; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; transition: opacity 0.2s; }
+        .mini-heart-pulse { font-size: 1.2rem; animation: pulse 1.5s infinite; }
+
         .heart-btn-mini { background: none; border: none; color: var(--pink); font-size: 3rem; cursor: pointer; animation: pulse 2s infinite; }
-        .unlock-btn, .final-btn { background: var(--pink); color: white; border: none; padding: 15px 30px; border-radius: 50px; font-size: 1.1rem; margin-top: 20px; cursor: pointer; }
+        .unlock-btn, .final-btn { background: var(--pink); color: white; border: none; padding: 15px 30px; border-radius: 50px; font-size: 1.1rem; margin-top: 20px; cursor: pointer; box-shadow: 0 5px 15px rgba(255, 77, 109, 0.3); }
         .hidden { display: none; }
 
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
@@ -97,28 +106,91 @@
     <div id="phase4" class="screen">
         <div class="glass-card">
             <h1 class="elegant-title">I Love You Mandyyy</h1>
-            <p style="font-weight:600; color:#7d7d7d; letter-spacing:2px;">and I miss you<br>SOOOOOOOOOOO MUCH</p>
+            <p style="font-weight:600; color:#7d7d7d; letter-spacing:2px;">AND I MISS YOU<br>SOOOOO MUCHHHH BABYYY<br><br> I will have to make 20 more of<br>these to express how much I love you<br><br>But here are few reasons why </p>
+            
+            <div class="compliment-container" onclick="showCompliment()">
+                <p id="compliment-text">Tap the heart for a reason why...</p>
+                <div class="mini-heart-pulse">❤️</div>
+            </div>
         </div>
         <p style="margin-top: 30px; color: #484848; font-size: 0.8rem;">Thank you for being you. Never change please and <br> please continue loving me or I'll be very sad :(</p>
     </div>
 
     <script>
-        const unlockDate = Date.UTC(2026, 1, 13, 16, 0, 0);  
+        const unlockDate = Date.UTC(2026, 1, 12, 16, 0, 0);  
         const bgMusic = document.getElementById('bgMusic');
         let unlocked = false;
         let musicStarted = false;
         let currentImg = 1;
+        let complimentIndex = 0; // New counter for sequential list
+
+        // Compliments Array (In Order)
+        const compliments = [
+            "You are SOOOOOOOOO SWEEEEEEEEEEEEEEEEEEEEET I might get diabetes, You better take responsibility then, My Local house DOCTOR",
+            "You're the clumsiest person I know, and it's sooooooo cute and adorable that it makes me get cuteness aggression",
+            "Your personality is so bright that it makes my dimmest boring day feel the funnest one",
+            "You are the cutest thing i know",
+            "You are the first thing on my mind even if you are thousands of kilometers away",
+            "I consider myself to be the luckiest person because I get to love you and be loved back (Hopefully forever :) )",
+            "You are So PRETTYYYYY BOTH IN LOOKS AND PERSONALITY THAT IM IN DENIAL THAT YOU LOVE ME BACK (Disclaimer a lot of 'i love's are coming up)",
+            "I love your eyes(I can see why it made your friend gay i would be too, if i was a girl)",
+            "I love the way you call me cute even though you are a 1000x cuter",
+            "I love the way you think, I love the way you are so different from the rest",
+            "I love how you got so excited yesterday about the countdown page it made me fall for you harder than i had already",
+            "I love how many ILYs and IMYs i get and hope it'll eventually reach the millions",
+            "I love how you never judged me based on my looks and even told me that i don have to send even a pic",
+            "I love how you are liking me purely based on my personality and how i am as a person",
+            "I love how you find my dumbest lame ass jokes funny and humourous",
+            "I love how you never find me too annoying or too much to handle even though i bombard you with messages when you might be busy",
+            "I love how you awkwardly say OH and UNLESS",
+            "I love how you message me if i don reply for a bit saying i miss you",
+            "I love how 80% of our conversation is ILYs and IMYs",
+            "I love how you put a disclaimer that you are clingy but the more it goes on the more i think i'm the clingier one",
+            "Lastly, but definitely not the least cause this list is going to be 10x bigger in an year probably (Hopefully)",
+            "I love everything about you, How pretty you are, How cute you are, How clingy you are, How energetic you are",
+            "I love every side of you babyy, and i REALLY REALLY REALLY HOPE this goes on forever and ever",
+            "I love you a lot babyyyy, i think you'll get an idea of how much by this point",
+            "You are the best thing to happen to me, and i love you so muchhh",
+            "LIKE I LOVE YOU SO MUCH THAT IT'S DRIVING ME INSANE (Tell me if you ever feel like im overbearing)",
+            "I LOVE YOU SO MUCH BABYY THAT NO WORDS CAN ENCAPSULATE IT AT THIS POINT",
+            "I WILL LOVE YOU FOREVER REGARDLESS OF HOW THINGS GO AND I WILL MISS YOU",
+            "That's all for now baby, I really really really hope you liked it cause you deserve the world. I will try better next time with more time in my hand",
+            "How much i wish i was near you right now",
+            "You genuinely made my life much more interesting. From the bottom of my heart i hope this goes well and that you have a happy life no matter what happens to us, hopefully i'm part of that happy life too :)",
+        ];
 
         function handleInteraction(e) {
             spawnHeart(e);
             if (!musicStarted) {
                 bgMusic.volume = 0.03;
-                bgMusic.play();
+                bgMusic.play().catch(err => console.log("Audio block:", err));
                 musicStarted = true;
             }
         }
 
-        // IMAGE GALLERY LOGIC
+        function showCompliment() {
+            const textElem = document.getElementById('compliment-text');
+            const heartElem = document.querySelector('.mini-heart-pulse');
+            
+            // Fade out
+            textElem.style.opacity = 0;
+            
+            setTimeout(() => {
+                if (complimentIndex < compliments.length) {
+                    textElem.innerText = compliments[complimentIndex];
+                    complimentIndex++;
+                } else {
+                    // Final message when list ends
+                    textElem.innerText = "I LOVE YOU BABYYYYYYYYY AND I WILL KEEP LOVING YOU FOREVER❤️";
+                    heartElem.style.display = 'none'; // Hide the heart to show it's done
+                    document.querySelector('.compliment-container').onclick = null; // Stop clicks
+                    document.querySelector('.compliment-container').style.cursor = 'default';
+                }
+                // Fade in
+                textElem.style.opacity = 1;
+            }, 200);
+        }
+
         function changeImage(dir) {
             currentImg += dir;
             if (currentImg > 2) currentImg = 1;
@@ -127,12 +199,7 @@
             document.getElementById('imgCaption').innerText = `Page ${currentImg} of 2`;
         }
 
-        // Sets the target to Feb 13, 2026, at 00:00:00 Philippines Time (UTC+8)
-// 1 = February (0-indexed)
-
-
         function updateTimer() {
-         // This gets the local time in milliseconds
             const now = new Date().getTime();
             const diff = unlockDate - now;
 
@@ -143,17 +210,15 @@
                     document.querySelector('.waiting-text').innerHTML = "IT'S TIIIIIMEEE ! ✨";
                     document.getElementById('unlock-btn-container').innerHTML = `<button class="unlock-btn" onclick="showPhase(2)">Open Your Letter</button>`;
                 }
-            return;
+                return;
+            }
+            
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+            document.getElementById('timer').innerText = `${d}d ${h}h ${m}m ${s}s`;
         }
-    
-    // Standard countdown math
-    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const s = Math.floor((diff % (1000 * 60)) / 1000);
-    
-    document.getElementById('timer').innerText = `${d}d ${h}h ${m}m ${s}s`;
-}
 
         setInterval(updateTimer, 1000);
         updateTimer();
