@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>1st Monthiversary</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --pink: #ff4d6d; --cream: #fff5f5; --paper: #fdfdfd; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            margin: 0; background: var(--cream); font-family: 'Quicksand', sans-serif; 
+            overflow: hidden; height: 100vh; display: flex; justify-content: center; align-items: center;
+            touch-action: manipulation;
+        }
+
+        .screen { display: none; text-align: center; width: 100%; height: 100%; padding: 20px; animation: fadeIn 0.8s ease; flex-direction: column; justify-content: center; align-items: center; }
+        .active { display: flex; }
+
+        .elegant-title { font-family: 'Dancing Script', cursive; font-size: 3rem; background: linear-gradient(45deg, #ff4d6d, #ff8fa3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; line-height: 1.2; }
+        .glass-card { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding: 40px 20px; border-radius: 30px; box-shadow: 0 8px 32px 0 rgba(255, 77, 109, 0.2); border: 1px solid rgba(255, 255, 255, 0.2); max-width: 400px; width: 100%; }
+
+        /* Phase 1: Spam Game */
+        .giant-heart { font-size: 5rem; cursor: pointer; user-select: none; animation: pulse 1s infinite; margin: 30px 0; -webkit-tap-highlight-color: transparent; }
+        .giant-heart:active { transform: scale(0.9); animation: none; }
+        .spam-text { position: absolute; font-weight: 600; font-size: 1.5rem; color: var(--pink); pointer-events: none; animation: floatSpam 1s ease-out forwards; z-index: 999; text-shadow: 0px 2px 5px rgba(255,77,109,0.3); }
+        .progress-text { font-size: 1.2rem; color: #666; font-weight: 600; margin-bottom: 20px; }
+
+        /* Phase 2: Polaroid Desk (Spaced out for scrolling) */
+        .desk-container { width: 100%; max-height: 65vh; overflow-y: auto; overflow-x: hidden; margin-top: 15px; padding-bottom: 20px; }
+        .desk { position: relative; width: 100%; max-width: 350px; height: 1300px; margin: 0 auto; }
+        
+        .polaroid { 
+            background: white; padding: 10px 10px 30px 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); 
+            position: absolute; width: 180px; border: 1px solid #eee; transition: transform 0.2s ease-out; cursor: pointer;
+        }
+        .polaroid img { width: 100%; height: 160px; object-fit: cover; background: #ddd; }
+        .polaroid .caption { font-family: 'Dancing Script', cursive; font-size: 1.2rem; margin-top: 10px; color: #333; }
+        
+        /* Spacing out the 8 photos vertically */
+        #p1 { top: 10px; left: 10px; transform: rotate(-6deg); z-index: 1; }
+        #p2 { top: 160px; right: 10px; transform: rotate(7deg); z-index: 2; }
+        #p3 { top: 310px; left: 20px; transform: rotate(-5deg); z-index: 3; }
+        #p4 { top: 460px; right: 15px; transform: rotate(6deg); z-index: 4; }
+        #p5 { top: 610px; left: 15px; transform: rotate(-7deg); z-index: 5; }
+        #p6 { top: 760px; right: 20px; transform: rotate(8deg); z-index: 6; }
+        #p7 { top: 910px; left: 25px; transform: rotate(-4deg); z-index: 7; }
+        #p8 { top: 1060px; right: 15px; transform: rotate(5deg); z-index: 8; }
+
+        /* Phase 3: Letter */
+        .letter-content { margin-top: 15px; }
+        .letter-content img { width: 100%; height: auto; border-radius: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #eee; }
+
+        /* Utilities */
+        .next-btn { background: var(--pink); color: white; border: none; padding: 15px 30px; border-radius: 50px; font-size: 1.1rem; margin-top: 20px; cursor: pointer; box-shadow: 0 5px 15px rgba(255, 77, 109, 0.3); font-family: 'Quicksand', sans-serif;}
+        .back-btn { background: none; border: none; color: #888; font-size: 0.9rem; text-decoration: underline; margin-top: 25px; cursor: pointer; font-family: 'Quicksand', sans-serif;}
+        
+        @keyframes floatSpam { 0% { transform: translateY(0) scale(0.5); opacity: 1; } 100% { transform: translateY(-150px) scale(1.5); opacity: 0; } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body onclick="startMusic()">
+
+    <audio id="bgMusic" loop>
+        <source src="month-music.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="phase1" class="screen active">
+        <div class="glass-card">
+            <h1 class="elegant-title">1 Month Down! Hopefully to a million more</h1>
+            <p style="color: #666; margin-top: 10px;">Since 80% of our chats are "I love you"s and "I miss you"s so 28 taps for our first 28 days</p>
+            
+            <div class="giant-heart" onclick="tapHeart(event)">❤️</div>
+            <div class="progress-text">Taps: <span id="tap-count">0</span> / 28</div>
+        </div>
+        <button class="back-btn" onclick="window.location.href='../hub.html'">❮ Back to Hub</button>
+    </div>
+
+    <div id="phase2" class="screen">
+        <h1 class="elegant-title" style="margin-bottom: 5px;">Our Memories</h1>
+        <p style="color: #666; margin-bottom: 10px; font-size: 0.9rem;">Scroll down and tap a photo to bring it to the front!</p>
+        
+        <div class="desk-container">
+            <div class="desk">
+                <div class="polaroid" id="p1" onclick="bringToFront(this)">
+                    <img src="photo1.jpeg" alt="Memory 1">
+                    <div class="caption">DIVA</div>
+                </div>
+                <div class="polaroid" id="p2" onclick="bringToFront(this)">
+                    <img src="photo2.jpeg" alt="Memory 2">
+                    <div class="caption">Cutieeeeeeeeee</div>
+                </div>
+                <div class="polaroid" id="p3" onclick="bringToFront(this)">
+                    <img src="photo3.jpeg" alt="Memory 3">
+                    <div class="caption">Gorgeous Queen</div>
+                </div>
+                <div class="polaroid" id="p4" onclick="bringToFront(this)">
+                    <img src="photo4.jpeg" alt="Memory 4">
+                    <div class="caption">US</div>
+                </div>
+                <div class="polaroid" id="p5" onclick="bringToFront(this)">
+                    <img src="photo5.jpeg" alt="Memory 5">
+                    <div class="caption">MY CUTIEEEEE</div>
+                </div>
+                <div class="polaroid" id="p6" onclick="bringToFront(this)">
+                    <img src="photo6.jpeg" alt="Memory 6">
+                    <div class="caption">Goofy aah</div>
+                </div>
+                <div class="polaroid" id="p7" onclick="bringToFront(this)">
+                    <img src="photo7.jpeg" alt="Memory 7">
+                    <div class="caption">Cutest existence</div>
+                </div>
+                <div class="polaroid" id="p8" onclick="bringToFront(this)">
+                    <img src="photo8.jpeg" alt="Memory 8">
+                    <div class="caption">Prettiest Girl I know of</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="next-btn" onclick="showPhase(3)">Read Your Letter 💌</button>
+    </div>
+
+    <div id="phase3" class="screen">
+        <div class="glass-card" style="max-height: 80vh; overflow-y: auto;">
+            <h1 class="elegant-title">Happy 1st Month</h1>
+            <div class="letter-content">
+                <img src="month-letter.jpeg" alt="My Handwritten Letter">
+            </div>
+        </div>
+        <button class="back-btn" onclick="window.location.href='../hub.html'">❮ Back to Hub</button>
+    </div>
+
+    <script>
+        let musicStarted = false;
+        function startMusic() {
+            if (!musicStarted) {
+                const bgMusic = document.getElementById('bgMusic');
+                bgMusic.volume = 0.03;
+                bgMusic.play().catch(err => console.log("Audio play blocked:", err));
+                musicStarted = true;
+            }
+        }
+
+        let taps = 0;
+        let zIndexCounter = 10; 
+        const spamWords = ["I love you!", "I miss you!", "I LOVE YOU SO MUCH", "I MISS YOU"];
+
+        function tapHeart(e) {
+            taps++;
+            document.getElementById('tap-count').innerText = taps;
+            
+            const word = spamWords[Math.floor(Math.random() * spamWords.length)];
+            const span = document.createElement('div');
+            span.innerText = word;
+            span.className = 'spam-text';
+            
+            const x = e.clientX || (e.touches && e.touches[0].clientX) || window.innerWidth/2;
+            const y = e.clientY || (e.touches && e.touches[0].clientY) || window.innerHeight/2;
+            
+            span.style.left = (x - 60 + (Math.random() * 120)) + 'px';
+            span.style.top = (y - 20) + 'px';
+            
+            document.body.appendChild(span);
+            setTimeout(() => span.remove(), 1000);
+
+            if (taps === 28) {
+                setTimeout(() => showPhase(2), 800);
+            }
+        }
+
+        function bringToFront(element) {
+            zIndexCounter++;
+            element.style.zIndex = zIndexCounter;
+            
+            const currentTransform = element.style.transform;
+            if(!currentTransform.includes("scale")) {
+                element.style.transform = currentTransform + " scale(1.05)";
+                setTimeout(() => {
+                    element.style.transform = currentTransform; 
+                }, 200);
+            }
+        }
+
+        function showPhase(phaseNum) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('phase' + phaseNum).classList.add('active');
+        }
+    </script>
+</body>
+</html>

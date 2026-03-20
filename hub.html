@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For Mandyyy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --pink: #ff4d6d; --cream: #fff5f5; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            margin: 0; background: var(--cream); font-family: 'Quicksand', sans-serif; 
+            height: 100vh; display: flex; justify-content: center; align-items: center;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); padding: 40px 20px; border-radius: 30px; 
+            box-shadow: 0 8px 32px 0 rgba(255, 77, 109, 0.2); border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 90%; max-width: 400px; text-align: center;
+        }
+        
+        .elegant-title { font-family: 'Dancing Script', cursive; font-size: 3.5rem; background: linear-gradient(45deg, #ff4d6d, #ff8fa3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; }
+        
+        .menu-container { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
+        
+        .menu-btn {
+            background: rgba(255, 255, 255, 0.6); border: 2px solid var(--pink);
+            color: var(--pink); padding: 15px 20px; border-radius: 15px;
+            font-size: 1.2rem; font-weight: 600; cursor: pointer; transition: 0.3s;
+            text-decoration: none; display: block; font-family: 'Quicksand', sans-serif;
+        }
+        .menu-btn:active { transform: scale(0.95); }
+
+        /* Style for locked buttons */
+        .menu-btn.locked {
+            background: rgba(200, 200, 200, 0.3);
+            border-color: #ccc;
+            color: #888;
+            cursor: not-allowed;
+            font-size: 1rem;
+        }
+        .menu-btn.locked:active { transform: scale(1); } /* Prevents the click animation */
+    </style>
+</head>
+<body>
+
+    <div class="glass-card">
+        <h1 class="elegant-title">Our Memories</h1>
+        <p style="color: #666; margin-top: 10px;">Select an event below, Mandyyy.</p>
+        
+        <div class="menu-container" id="menu-links">
+            <a class="menu-btn" id="btn-val"></a>
+            <a class="menu-btn" id="btn-month"></a>
+        </div>
+    </div>
+
+    <script>
+        // Set up the events with their target dates, original text, and folder paths
+        const events = [
+            {
+                id: 'btn-val',
+                targetDate: Date.UTC(2026, 1, 13, 16, 0, 0), // Valentine's Date (Feb 14 PHT)
+                unlockedText: "Valentine's Day 2026 ❤️",
+                linkPath: "2026valentines/valentines2026.html"
+            },
+            {
+                id: 'btn-month',
+                targetDate: Date.UTC(2026, 1, 20, 16, 0, 0), // Monthiversary Date (Feb 21 PHT)
+                unlockedText: "1st Monthiversary ✨",
+                linkPath: "1stmonthiversary/1stmonthiversary.html"
+            }
+        ];
+
+        function updateMenuTimers() {
+            const now = new Date().getTime();
+
+            events.forEach(event => {
+                const btn = document.getElementById(event.id);
+                if (!btn) return;
+
+                const diff = event.targetDate - now;
+
+                if (diff <= 0) {
+                    // Time has passed: Unlock the button
+                    btn.innerHTML = event.unlockedText;
+                    btn.href = event.linkPath;
+                    btn.classList.remove('locked');
+                } else {
+                    // Time has NOT passed: Lock the button and show countdown
+                    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+                    // Formats time with leading zeros for single digits
+                    const pad = (num) => num.toString().padStart(2, '0');
+
+                    btn.innerHTML = `🔒 Unlocks in: ${d}d ${pad(h)}h ${pad(m)}m ${pad(s)}s`;
+                    btn.removeAttribute('href'); // Removes the link so it can't be clicked
+                    btn.classList.add('locked'); // Applies the gray CSS
+                }
+            });
+        }
+
+        // Run the timer every second
+        setInterval(updateMenuTimers, 1000);
+        updateMenuTimers(); // Run once immediately so it doesn't wait 1s to load
+    </script>
+
+</body>
+</html>
