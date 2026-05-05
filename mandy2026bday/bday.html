@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Birthday Bunny Run</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  width:100%;height:100%;
+  background:#fce4ec;
+  overflow:hidden;
+  touch-action:none;
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+  font-family:Georgia,serif;
+}
+canvas{position:fixed;top:0;left:0;display:block;}
+#ui{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  display:flex;align-items:center;justify-content:center;
+  z-index:10;
+}
+.card{
+  background:rgba(255,255,255,0.97);
+  border-radius:20px;padding:32px 44px;text-align:center;
+  border:2px solid #f8bbd0;
+  box-shadow:0 8px 40px rgba(233,30,99,0.2);
+  max-width:90vw;
+}
+.card h1{color:#e91e63;font-size:1.8rem;margin-bottom:10px}
+.card p{color:#666;font-size:1rem;margin:4px 0}
+.card .hint{font-size:0.8rem;color:#aaa;margin-top:14px}
+.card button{
+  background:#e91e63;color:white;border:none;padding:10px 20px;
+  border-radius:10px;font-size:1.1rem;margin-top:12px;cursor:pointer;
+  display:block;width:100%;
+}
+.card button.secondary{
+  background:white;color:#e91e63;border:2px solid #e91e63;
+}
+
+/* Letter overlay */
+#letterOverlay{
+  display:none;
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,0.62);
+  z-index:30;
+  align-items:center;justify-content:center;
+  padding:16px;
+}
+#letterOverlay.open{display:flex;}
+.letter-wrap{
+  background:#fff9f0;
+  border-radius:6px;
+  max-width:min(500px,96vw);
+  width:100%;
+  box-shadow:0 16px 70px rgba(0,0,0,0.38);
+  position:relative;
+  overflow:hidden;
+  max-height:88vh;
+  display:flex;flex-direction:column;
+}
+.letter-stripe{
+  height:7px;
+  background:repeating-linear-gradient(
+    90deg,
+    #e91e63 0px,#e91e63 16px,
+    #f8bbd0 16px,#f8bbd0 32px,
+    #fff 32px,#fff 48px,
+    #f8bbd0 48px,#f8bbd0 64px
+  );
+  flex-shrink:0;
+}
+.letter-scroll{
+  overflow-y:auto;
+  padding:24px 30px 28px;
+}
+.letter-close{
+  position:absolute;top:12px;right:14px;
+  background:rgba(255,249,240,0.9);border:none;
+  font-size:1.3rem;color:#bbb;cursor:pointer;
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  line-height:1;z-index:1;
+}
+.letter-close:hover{color:#e91e63;}
+.letter-date{
+  font-size:0.78rem;color:#bbb;text-align:right;
+  margin-bottom:20px;font-family:Georgia,serif;
+}
+.letter-body{
+  font-family:Georgia,serif;
+  font-size:1.03rem;line-height:1.9;
+  color:#3a2520;white-space:pre-wrap;
+}
+.letter-sig{
+  margin-top:24px;
+  font-family:Georgia,serif;font-size:1rem;
+  color:#c2185b;font-style:italic;
+}
+.letter-seal{
+  font-size:2rem;display:block;
+  text-align:center;margin-top:14px;
+}
+
+#hud{
+  position:fixed;top:16px;left:50%;transform:translateX(-50%);
+  background:rgba(255,255,255,0.88);border-radius:30px;
+  padding:6px 22px;font-size:0.9rem;color:#c2185b;
+  border:1px solid #f8bbd0;display:none;gap:22px;
+  pointer-events:none;white-space:nowrap;z-index:10;
+}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="hud">
+  <span>&#x1F430; <span id="dm">0</span>m</span>
+  <span>&#11088; <span id="scoreUI">0</span></span>
+  <span>&#x2764;&#xFE0F; <span id="dp">0</span>%</span>
+</div>
+
+<div id="ui">
+  <div class="card">
+    <h1>&#x1F430; BunBun Dash</h1>
+    <p>Mommy's Birthday is soon and dad prepared a lot but the evil hairclips keep getting in the way, I have to collect the gifts dad sent!!</p>
+    <p>Help me jump over the hairclips mom!</p>
+    <p>Collect carrots &amp; balloons!</p>
+    <p>Reach the <strong style="color:#e91e63">&#x2764;&#xFE0F;</strong> to win!</p>
+    <p class="hint">Tap anywhere or press Space to make bunbun move</p>
+  </div>
+</div>
+
+<!-- Exclusive letter overlay -->
+<div id="letterOverlay">
+  <div class="letter-wrap">
+    <div class="letter-stripe"></div>
+    <button class="letter-close" id="letterCloseBtn">&#x2715;</button>
+    <div class="letter-scroll">
+      <div class="letter-date" id="letterDate"></div>
+      <div class="letter-body" id="letterBody"></div>
+      <div class="letter-sig">With love, lots and lotssss of love &#x1F430;&#x1F495;</div>
+      <div class="letter-sig">Yazeen</div>
+      <span class="letter-seal">&#x1F48C;</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- DOM ----
+var canvas  = document.getElementById('c');
+var ctx     = canvas.getContext('2d');
+var ui      = document.getElementById('ui');
+var hud     = document.getElementById('hud');
+var dmEl    = document.getElementById('dm');
+var dpEl    = document.getElementById('dp');
+var scoreUI = document.getElementById('scoreUI');
+var letterOverlay = document.getElementById('letterOverlay');
+
+// ---- Sprite (original approach — unchanged) ----
+var bunnyImg = new Image();
+bunnyImg.src = 'bunny-sprite.png';
+var bunnyImgReady = false;
+bunnyImg.onload = function(){ bunnyImgReady = true; };
+
+// ---- Custom Sprites ----
+var cakeImg = new Image(); cakeImg.src = 'cake.png';
+var carrotImg = new Image(); carrotImg.src = 'carrot.png';
+var balloonImg = new Image(); balloonImg.src = 'balloon.png';
+var groundImg = new Image(); groundImg.src = 'ground.png';
+var loveImg = new Image(); loveImg.src = 'love_sprite.PNG';
+var LOVE_COLS=4, LOVE_ROWS=2, LOVE_FRAMES=8;
+var LOVE_FW=427, LOVE_FH=312;
+
+
+// ---- Dimensions ----
+var W=0, H=0, GY=0;
+var groundOffset = 14;
+
+function resize(){
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  GY = H - Math.round(H*0.06);
+  if(STATE !== 'PLAY' && STATE !== 'DYING') drawIdle();
+}
+window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', function(){ setTimeout(resize,300); });
+
+// ---- Game variables ----
+var WIN_DIST = 1800;
+var STATE    = 'START';
+var dist, spd, frame, spawnT, deathT;
+var obstacles, collectibles, cake, heart, particles, gOff;
+var cakeCollected = false;
+var score = 0;
+var highScore = 0;
+try{ highScore = parseInt(localStorage.getItem('bunnyHigh'))||0; }catch(e){}
+var rafId = null;
+
+var clouds=[
+  {x:0.12,y:0.10,w:0.10,s:0.4},
+  {x:0.42,y:0.07,w:0.13,s:0.6},
+  {x:0.72,y:0.11,w:0.09,s:0.35}
+];
+
+// ---- Utilities ----
+function collide(a,b,factor){
+  factor=factor||0.7;
+  return Math.abs((a.x+a.w/2)-(b.x+b.w/2)) < (a.w+b.w)/2*factor &&
+         Math.abs((a.y+a.h/2)-(b.y+b.h/2)) < (a.h+b.h)/2*factor;
+}
+
+function burst(x,y,color,n){
+  for(var i=0;i<n;i++){
+    var a=(Math.PI*2/n)*i+Math.random()*0.5;
+    particles.push({x:x,y:y,
+      vx:Math.cos(a)*(2+Math.random()*3),
+      vy:Math.sin(a)*(2+Math.random()*3)-2,
+      life:1,color:color});
+  }
+}
+
+function tickParticles(){
+  var keep=[];
+  for(var i=0;i<particles.length;i++){
+    var p=particles[i];
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.15; p.life-=0.04;
+    if(p.life<=0) continue;
+    ctx.globalAlpha=p.life;
+    ctx.fillStyle=p.color;
+    ctx.beginPath(); ctx.arc(p.x,p.y,4*p.life,0,Math.PI*2); ctx.fill();
+    keep.push(p);
+  }
+  ctx.globalAlpha=1;
+  particles=keep;
+}
+
+// ---- Environment ----
+function drawSky(s, currentDist){
+  var t=Math.min(1,currentDist/WIN_DIST);
+  var r=Math.floor(252-t*80);
+  var g=Math.floor(228-t*120);
+  var b=Math.floor(236-t*150);
+  ctx.fillStyle='rgb('+r+','+g+','+b+')';
+  ctx.fillRect(0,0,W,H);
+
+  for(var i=0;i<clouds.length;i++){
+    var c=clouds[i];
+    // BUG FIX: only scroll clouds during active play
+    if(s>0){ c.x-=c.s*(s/W*0.5); if(c.x+c.w<0) c.x=1.05; }
+    var cx=c.x*W, cy=c.y*H, cw=c.w*W;
+    ctx.fillStyle='rgba(255,255,255,0.82)';
+    ctx.beginPath();
+    ctx.arc(cx,         cy,        cw*0.25,0,Math.PI*2);
+    ctx.arc(cx+cw*0.25, cy-cw*0.1, cw*0.30,0,Math.PI*2);
+    ctx.arc(cx+cw*0.55, cy,        cw*0.22,0,Math.PI*2);
+    ctx.fill();
+  }
+}
+
+function drawGround(s){
+  if(s>0) gOff=(gOff+s)%40;
+  ctx.fillStyle='#2d5a1b'; ctx.fillRect(0,GY+groundOffset,W,H-GY-groundOffset);
+  if(groundImg.complete){
+    var tileH=Math.round(H*0.07);
+    var tileW=tileH;
+    for(var x=-(gOff%tileW);x<W;x+=tileW){
+      ctx.drawImage(groundImg,x,GY+groundOffset,tileW,tileH);
+    }
+  }
+}
+
+// ---- Bunny (original sprite logic — unchanged) ----
+var B={
+  w:96, h:96, x:60, y:0, dy:0, grounded:true, sq:1, st:1,
+  frameX:0, maxFrame:7, spriteW:32, spriteH:32, stagger:5,
+  jumps:0, maxJumps:2,
+
+  init:function(){
+    this.y=GY+groundOffset-this.h;
+    this.dy=0; this.grounded=true;
+    this.sq=1; this.st=1; this.frameX=0; this.jumps=0;
+  },
+
+  jump:function(){
+    if(this.jumps>=this.maxJumps) return;
+    if(this.jumps===0){
+      this.dy=-(H*0.02+6);
+      burst(this.x+this.w/2,GY+groundOffset,'#a5d6a7',5);
+    } else {
+      this.dy=-(H*0.032+10);
+      burst(this.x+this.w/2,this.y+this.h/2,'#fff',10);
+    }
+    this.jumps++;
+    this.grounded=false;
+    this.st=1.25;
+  },
+
+  tick:function(){
+    this.y+=this.dy;
+    this.dy+=H*0.0014;
+    var floor=GY+groundOffset-this.h;
+
+    if(this.y>=floor){
+      if(!this.grounded){
+        this.sq=0.7;
+        burst(this.x+this.w/2,GY+groundOffset,'#f8bbd0',4);
+      }
+      this.y=floor; this.dy=0; this.grounded=true; this.jumps=0;
+    } else {
+      this.grounded=false;
+      if(frame%4===0) burst(this.x+20,this.y+this.h-10,'#e0f7fa',1);
+    }
+
+    this.sq+=(1-this.sq)*0.22;
+    this.st+=(1-this.st)*0.22;
+
+    if(STATE==='PLAY' && this.grounded){
+      if(frame%this.stagger===0) this.frameX=(this.frameX+1)%(this.maxFrame+1);
+    } else if(!this.grounded){
+      this.frameX=0;
+    }
+  },
+
+  // Original sprite draw — unchanged
+  draw:function(spin){
+    if(!bunnyImgReady) return;
+    var cx=this.x+this.w/2, cy=this.y+this.h/2;
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.scale(this.sq,this.st);
+    if(spin){
+      ctx.rotate(deathT*0.15);
+    } else if(!this.grounded){
+      ctx.rotate(-this.dy*0.02);
+    }
+    ctx.translate(-cx,-cy);
+    ctx.drawImage(bunnyImg,
+      this.frameX*this.spriteW, 0, this.spriteW, this.spriteH,
+      this.x, this.y, this.w, this.h);
+    ctx.restore();
+  }
+};
+
+// ---- Obstacles ----
+function makeClip(s){
+  return{
+    x:W+10, w:70, h:80, y:GY+groundOffset-80,
+    spd:s, dead:false, bite:0, biteDir:1,
+    tick:function(){
+      this.x-=this.spd;
+      if(this.x+this.w<0) this.dead=true;
+      this.bite+=this.biteDir*0.12;
+      if(this.bite>=1){this.bite=1;this.biteDir=-1;}
+      else if(this.bite<=0){this.bite=0;this.biteDir=1;}
+    },
+    draw:function(){
+      var x=this.x,y=this.y,w=this.w,h=this.h;
+      var midY=y+h/2; var gap=this.bite*14; var jaw=14;
+      ctx.fillStyle='#880e4f';
+      ctx.beginPath(); ctx.roundRect(x+w-7,y+6,7,h-12,3); ctx.fill();
+      ctx.fillStyle='#ff80ab';
+      ctx.beginPath(); ctx.arc(x+w-4,midY,5,0,Math.PI*2); ctx.fill();
+      var ty=midY-gap/2-jaw;
+      ctx.fillStyle='#c2185b';
+      ctx.beginPath(); ctx.roundRect(x,ty,w-6,jaw,[4,0,0,4]); ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,0.2)';
+      ctx.beginPath(); ctx.roundRect(x+3,ty+2,w-12,4,2); ctx.fill();
+      ctx.fillStyle='#fffde7';
+      for(var tx=x+4;tx<x+w-10;tx+=9){
+        ctx.beginPath();ctx.moveTo(tx,ty+jaw);ctx.lineTo(tx+6,ty+jaw);ctx.lineTo(tx+3,ty+jaw+8);ctx.closePath();ctx.fill();
+      }
+      var by2=midY+gap/2;
+      ctx.fillStyle='#c2185b';
+      ctx.beginPath(); ctx.roundRect(x,by2,w-6,jaw,[0,0,4,4]); ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,0.2)';
+      ctx.beginPath(); ctx.roundRect(x+3,by2+2,w-12,4,2); ctx.fill();
+      ctx.fillStyle='#fffde7';
+      for(var tx2=x+4;tx2<x+w-10;tx2+=9){
+        ctx.beginPath();ctx.moveTo(tx2,by2);ctx.lineTo(tx2+6,by2);ctx.lineTo(tx2+3,by2-8);ctx.closePath();ctx.fill();
+      }
+      if(gap>1){ctx.fillStyle='rgba(40,0,20,0.7)';ctx.fillRect(x,midY-gap/2,w-6,gap);}
+    },
+    // BUG FIX: original `bite<0.5` made wide-open clips harmless. Always collide.
+    hits:function(b){ return collide(this,b,0.6); }
+  };
+}
+
+function makeFastClip(s){
+  var o=makeClip(s*1.6); o.w=60; return o;
+}
+
+function makeFloatingClip(s){
+  var o=makeClip(s);
+  o.y-=100;
+  o.wave=Math.random()*Math.PI;
+  var orig=o.tick.bind(o);
+  o.tick=function(){ orig(); this.wave+=0.1; this.y+=Math.sin(this.wave)*2; };
+  return o;
+}
+
+// ---- Collectibles ----
+function makeCollectible(){
+  var types=['carrot','balloon','confetti'];
+  var type=types[Math.floor(Math.random()*types.length)];
+  // BUG FIX: pick confetti color at creation so it doesn't flicker every frame
+  var confettiColor=['#ffeb3b','#00bcd4','#e91e63'][Math.floor(Math.random()*3)];
+  return{
+    type:type,
+    x:W+20,
+    y:GY-80-Math.random()*120,
+    w:24, h:24,
+    spd:spd,
+    wave:Math.random()*Math.PI,
+    dead:false,
+    tick:function(){
+      this.x-=this.spd;
+      if(this.x+this.w<0){this.dead=true;return;}
+      if(this.type==='balloon'){
+        this.y-=0.6;
+        if(this.y<-40) this.dead=true;
+      }
+      if(this.type==='confetti'){
+        this.wave+=0.1;
+        this.y+=1.5;
+        this.x+=Math.sin(this.wave)*2;
+        if(this.y>H+20) this.dead=true;
+      }
+    },
+    draw:function(){
+      if(this.type==='carrot'){
+        if(carrotImg.complete){
+          ctx.drawImage(carrotImg,this.x-4,this.y-4,36,36);
+        } else {
+          ctx.fillStyle='#ff9800';
+          ctx.beginPath(); ctx.arc(this.x+12,this.y+12,12,0,Math.PI*2); ctx.fill();
+          ctx.fillStyle='#4caf50'; ctx.fillRect(this.x+8,this.y-6,4,10);
+        }
+      } else if(this.type==='balloon'){
+        if(balloonImg.complete){
+          ctx.drawImage(balloonImg,this.x-16,this.y-22,56,56);
+        } else {
+          ctx.fillStyle='#f44336';
+          ctx.beginPath(); ctx.ellipse(this.x+12,this.y+12,10,14,0,0,Math.PI*2); ctx.fill();
+          ctx.fillStyle='rgba(255,255,255,0.4)';
+          ctx.beginPath(); ctx.arc(this.x+8,this.y+6,3,0,Math.PI*2); ctx.fill();
+        }
+      } else {
+        ctx.fillStyle=confettiColor; // stable, no flicker
+        ctx.fillRect(this.x,this.y,8,8);
+      }
+    },
+    hits:function(b){ return collide(this,b,0.8); }
+  };
+}
+
+// ---- Cake ----
+function makeCake(){
+  return{
+    x:W+20, y:GY+groundOffset-70, w:70, h:70, spd:2.5, dead:false,
+    tick:function(){ this.x-=this.spd; if(this.x+this.w<0) this.dead=true; },
+    draw:function(){
+      if(cakeImg.complete){
+        ctx.drawImage(cakeImg,this.x-5,this.y-10,this.w+20,this.h+20);
+      } else {
+        ctx.fillStyle='#ffccbc'; ctx.fillRect(this.x,this.y+30,this.w,40);
+        ctx.fillStyle='#f8bbd0'; ctx.fillRect(this.x-5,this.y+20,this.w+10,15);
+        ctx.fillStyle='#e91e63';
+        ctx.beginPath(); ctx.arc(this.x+this.w/2,this.y+15,6,0,Math.PI*2); ctx.fill();
+      }
+    },
+    hits:function(b){ return collide(this,b); }
+  };
+}
+
+// ---- Heart ----
+function makeHeart(){
+  var sz=Math.min(W*0.7,GY*0.85,320);
+  // scale sprite frame to display size, keeping aspect ratio
+  var dispW=sz;
+  var dispH=sz*(LOVE_FH/LOVE_FW);
+  return{
+    x:W+20, w:dispW, h:dispH, y:GY+groundOffset-dispH,
+    spd:2.5, pulse:0,
+    animFrame:0, animTick:0, animDone:false,
+    tick:function(){
+      this.x-=this.spd;
+      this.pulse+=0.06;
+      // animate only when bunny touches (handled in collect logic via animating flag)
+      if(this.animating){
+        this.animTick++;
+        if(this.animTick%6===0){
+          this.animFrame++;
+          if(this.animFrame>=LOVE_FRAMES){ this.animFrame=LOVE_FRAMES-1; this.animDone=true; }
+        }
+      }
+    },
+    draw:function(){
+      if(!loveImg.complete) return;
+      // idle: loop frames 0-4 (first row + frame 4) slowly for pulse effect
+      var f = this.animating ? this.animFrame : Math.floor(this.pulse/0.3)%5;
+      var col=f%LOVE_COLS, row=Math.floor(f/LOVE_COLS);
+      ctx.save();
+      ctx.drawImage(loveImg,
+        col*LOVE_FW, row*LOVE_FH, LOVE_FW, LOVE_FH,
+        this.x, this.y, this.w, this.h);
+      ctx.restore();
+    },
+    hits:function(b){ return collide(this,b,0.6); }
+  };
+}
+
+// ---- Letter ----
+function openLetter(){
+  var now=new Date();
+  // Hardcoded to May 6th to ensure it shows her actual birthday whenever opened
+  document.getElementById('letterDate').textContent = 'May 6, ' + now.getFullYear();
+
+  // ✏️  Edit the letter content below:
+  document.getElementById('letterBody').textContent=
+'Hi babyyy,\n\n'+
+'Happy Birthdayyyy!!! To my one and only love. I know this isn\'t much, and you cried a lot the day before yesterday, so here is me hoping this little game cheered you up at least a bit.\n\n'+
+'Since you haven\'t been able to celebrate any of your birthdays properly, I wanted to be the first one to wish you a happy birthday and give you a gift this time. I swear to make up for all of the birthday parties you missed in the future. I know how hard you work, how diligent you are, and how gentle you are. I really, really mean it when I say that you deserve the world. I might not have been the absolute best boyfriend I wish I could\'ve been to you, but I swear I will strive to never make you cry ever again.\n\n'+
+'I\'m sorry for never being able to be there for you physically, at least for now. I will make up for all of this when I can finally get there. For all the gifts I missed, for all the gifts I couldn\'t give, and for all the bouquets I couldn\'t give but you definitely deserve... Above all else, I hope we can celebrate many, many more birthdays to come. Yes, you can\'t get rid of me even when you are 100 years old!\n\n'+
+'I hope you didn\'t kill bunbun too many times because of the damn accursed hairclips. STAY AWAY FROM THOSE!!!\n\n'+
+'Coincidentally, it also marks the day I met you for the first time. Three months ago today, I met the love of my life who completely changed my life from boring, mundane days to days where I am never truly sad, because I know you will be there for me, waiting at the end of the day. I hope you can feel the same towards me—if not now, someday at least. I love you a lot, a lot more than you think. You made my life so much more colourful, and you bring a smile to my face just by being there.\n\n'+
+'You do not know how much joy you bring to me, my beautiful girlfriend. To the prettiest girl ever, who I am ever so lucky to have found: have a wonderful birthday and a great year ahead. I will be there to celebrate every step you take, as well as be there for you during the tough times. I hope this relieved some of your anxiousness about the future—hopefully, maybe? You will be successful regardless, I know it. I wish you a very good year and a lot of good years to come (hopefully with me there by your side). I love you a lot. I love you very much. I love you the most. Happy birthday, my gem!\n\n'
+  letterOverlay.classList.add('open');
+}
+
+function closeLetter(){
+  letterOverlay.classList.remove('open');
+}
+
+document.getElementById('letterCloseBtn').addEventListener('click', closeLetter);
+// Tap backdrop to close
+letterOverlay.addEventListener('mousedown', function(e){ if(e.target===this) closeLetter(); });
+letterOverlay.addEventListener('touchstart', function(e){ if(e.target===this){ e.preventDefault(); closeLetter(); } },{passive:false});
+
+// ---- UI helpers ----
+function showCard(html){
+  ui.innerHTML='<div class="card">'+html+'</div>';
+  ui.style.display='flex';
+}
+
+// ---- Start ----
+function startGame(){
+  // BUG FIX: cancel existing loop before starting a new one
+  if(rafId!==null){ cancelAnimationFrame(rafId); rafId=null; }
+  cakeCollected=false;
+  dist=0; frame=0; spd=5.5; spawnT=130; deathT=0; score=0;
+  obstacles=[]; collectibles=[]; cake=null; heart=null; particles=[]; gOff=0;
+  B.init();
+  STATE='PLAY';
+  ui.style.display='none';
+  hud.style.display='flex';
+  rafId=requestAnimationFrame(loop);
+}
+
+// ---- Main loop ----
+function loop(){
+  rafId=null;
+  ctx.clearRect(0,0,W,H);
+
+  var moving=(STATE==='PLAY'||STATE==='DYING');
+  drawSky(moving?spd:0, dist);
+  drawGround(moving?spd:0);
+
+  // Screen shake
+  ctx.save();
+  if(STATE==='DYING' && deathT<15){
+    ctx.translate((Math.random()-0.5)*12,(Math.random()-0.5)*12);
+  }
+
+  var i;
+  for(i=0;i<obstacles.length;i++)    obstacles[i].draw();
+  for(i=0;i<collectibles.length;i++) collectibles[i].draw();
+  if(cake)  cake.draw();
+  if(heart) heart.draw();
+
+  if(STATE==='PLAY')   B.tick();
+  if(STATE==='DYING'){ B.y+=4; deathT++; }
+  B.draw(STATE==='DYING');
+  tickParticles();
+  ctx.restore();
+
+  // ---- PLAY logic ----
+  if(STATE==='PLAY'){
+    dist++; frame++;
+    spd=Math.min(11,5.5+dist*0.003);
+
+    // BUG FIX: use cakeCollected flag so heart spawn condition is reliable
+    if(dist>=WIN_DIST && !cake && !heart && !cakeCollected){
+      cake=makeCake();
+    }
+    if(dist>=WIN_DIST+600 && !heart && cakeCollected){
+      heart=makeHeart();
+      obstacles=[];
+    }
+
+    // Spawn obstacles
+    if(!heart && !cake){
+      spawnT--;
+      if(spawnT<=0){
+        var rand=Math.random();
+        if(rand<0.2)      obstacles.push(makeFastClip(spd));
+        else if(rand<0.4) obstacles.push(makeFloatingClip(spd));
+        else              obstacles.push(makeClip(spd));
+        spawnT=Math.max(70,130-dist*0.02)+Math.random()*50;
+      }
+    }
+
+    // Spawn collectibles
+    if(Math.random()<0.03 && !heart) collectibles.push(makeCollectible());
+
+    // Collectibles tick & collide
+    for(i=collectibles.length-1;i>=0;i--){
+      var c=collectibles[i];
+      c.tick();
+      if(c.dead){ collectibles.splice(i,1); continue; }
+      if(c.hits(B)){
+        score+=10;
+        burst(c.x+10,c.y+10,c.type==='balloon'?'#f44336':'#ff9800',8);
+        if(navigator.vibrate) navigator.vibrate(20);
+        collectibles.splice(i,1);
+      }
+    }
+
+    // Obstacles tick & collide
+    for(i=obstacles.length-1;i>=0;i--){
+      var o=obstacles[i];
+      o.tick();
+      if(o.dead){ obstacles.splice(i,1); continue; }
+      if(o.hits(B)){
+        STATE='DYING'; deathT=0;
+        if(navigator.vibrate) navigator.vibrate(40);
+        burst(B.x+B.w/2,B.y+B.h/2,'#e91e63',20);
+      }
+    }
+
+    // Cake tick & collect
+    if(cake){
+      cake.tick();
+      if(cake.dead){ cake=null; }
+      else if(cake.hits(B)){
+        burst(cake.x+cake.w/2,cake.y+cake.h/2,'#fff',30);
+        burst(cake.x+cake.w/2,cake.y+cake.h/2,'#ffccbc',20);
+        if(navigator.vibrate) navigator.vibrate(50);
+        score+=100;
+        cake=null;
+        cakeCollected=true; // unlock heart spawn
+      }
+    }
+
+    // Heart tick & collect → WIN
+    if(heart){
+      heart.tick();
+      if(!heart.animating && heart.hits(B)){
+        heart.animating=true;
+        B.grounded=true; B.dy=0; // freeze bunny
+        burst(heart.x+heart.w/2,heart.y+heart.h/2,'#ff80ab',30);
+        burst(heart.x+heart.w/2,heart.y+heart.h/2,'#fff',20);
+        if(navigator.vibrate) navigator.vibrate(50);
+      }
+      if(heart.animating && heart.animDone){
+        STATE='WIN';
+        handleGameOver();
+        hud.style.display='none';
+        showCard(
+          '<h1>Happy Birthday!!! &#x1F389;</h1>'+
+          '<p>You helped BunBun make it! You got the cake!!! Oh, dad has sent you a letter!! &#x1F496;</p>'+
+          '<p style="font-size:1.5rem;margin:10px 0">&#x1F382;&#x1F388;&#x1F430;&#x2764;&#xFE0F;&#x1F38A;</p>'+
+          '<p>Score: <strong>'+score+'</strong></p>'+
+          '<p>Best: <strong>'+highScore+'</strong></p>'+
+          '<button onclick="openLetter()" style="background:#c2185b;">&#x1F48C; Read Your Letter</button>'+
+          '<button onclick="startGame()" class="secondary">Play Again &#x1F430;</button>'
+        );
+        return; // stop loop
+      }
+    }
+
+    // HUD
+    dmEl.textContent    = Math.floor(dist);
+    scoreUI.textContent = score;
+    dpEl.textContent    = Math.min(100,Math.floor(dist/(WIN_DIST+600)*100));
+  }
+
+  // ---- DYING → GAMEOVER ----
+  if(STATE==='DYING' && deathT>=45){
+    STATE='GAMEOVER';
+    handleGameOver();
+    hud.style.display='none';
+    showCard(
+      '<h1>Oh no! BUNBUN!!!! &#x1F430;</h1>'+
+      '<p>The accursed hairclip got BunBun! ;( </p>'+
+      '<p>Distance: <strong>'+Math.floor(dist)+'m</strong></p>'+
+      '<p>Score: <strong>'+score+'</strong> &nbsp;(Best: <strong>'+highScore+'</strong>)</p>'+
+      '<button onclick="startGame()">Try Again &#x1F499;</button>'
+    );
+    return; // stop loop
+  }
+
+  if(STATE==='PLAY'||STATE==='DYING'){
+    rafId=requestAnimationFrame(loop);
+  }
+}
+
+function handleGameOver(){
+  if(score>highScore){
+    highScore=score;
+    try{ localStorage.setItem('bunnyHigh',highScore); }catch(e){}
+  }
+}
+
+// ---- Idle screen ----
+function drawIdle(){
+  ctx.clearRect(0,0,W,H);
+  drawSky(0,0); drawGround(0);
+  B.y=GY+groundOffset-B.h; B.draw(false);
+}
+
+// ---- Input ----
+var inputLock=false;
+function onInput(e){
+  // BUG FIX: block game input when letter is open
+  if(letterOverlay.classList.contains('open')) return;
+  if(e.cancelable) e.preventDefault();
+  if(inputLock) return;
+  inputLock=true;
+  setTimeout(function(){inputLock=false;},80);
+
+  if(STATE==='START'){
+    // BUG FIX: tapping start card must actually start the game
+    startGame();
+    return;
+  }
+  if(STATE==='PLAY') B.jump();
+}
+
+document.addEventListener('touchstart',onInput,{passive:false});
+document.addEventListener('mousedown',onInput,false);
+document.addEventListener('keydown',function(e){
+  if(e.code==='Space'||e.code==='ArrowUp'){ e.preventDefault(); onInput(e); }
+});
+
+// ---- Boot ----
+resize();
+B.init();
+drawIdle();
+</script>
+</body>
+</html>
