@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#211d3c">
+  <title>Six Months, One Little Universe</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="sixmonths.css">
+</head>
+<body>
+  <main class="site-shell">
+    <a class="back-link" href="../hub.html">❮ Back to our memories</a>
+
+    <section class="hero" id="home">
+      <p class="eyebrow" id="anniversary-date"></p>
+      <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+      <p class="hero-moon" aria-hidden="true">☾</p>
+      <h1>Six Months,<br><em>One Little Universe</em></h1>
+      <p class="hero-copy" id="hero-copy"></p>
+      <button class="primary-button" type="button" data-scroll-to="spaces">Come in, baby <span>→</span></button>
+    </section>
+
+    <section class="space-intro" id="spaces">
+      <p class="eyebrow">Made for every kind of day</p>
+      <h2>A few places to come back to.</h2>
+      <div class="space-grid">
+        <a class="space-card story-card" href="#our-story"><span>01</span><h3>Our Story</h3><p>A little film and the moments that made us.</p></a>
+        <a class="space-card voice-card" href="#hear-me"><span>02</span><h3>Hear Me</h3><p>My voice, for whenever you need it.</p></a>
+        <a class="space-card letters-card" href="#open-when"><span>03</span><h3>Open When</h3><p>Small letters for specific moments.</p></a>
+        <a class="space-card map-card" href="#between-us"><span>04</span><h3>Between Us</h3><p>Two places, one little universe.</p></a>
+      </div>
+    </section>
+
+    <section class="content-section" id="our-story">
+      <p class="eyebrow">01 · Our story</p>
+      <h2>Six months in a few minutes.</h2>
+      <p class="section-copy">Press play when you have a little time to sit with us.</p>
+      <div class="film-frame">
+        <video id="documentary" controls playsinline poster="assets/video/six-months-poster.png">
+          <source src="assets/video/six-months-two-time-zones.mp4" type="video/mp4">
+          Your browser does not support video playback.
+        </video>
+        <p class="media-note">Add the documentary file to <code>assets/video/</code>.</p>
+      </div>
+      <div class="timeline" id="timeline" aria-label="Our relationship timeline"></div>
+    </section>
+
+    <section class="content-section night-section" id="hear-me">
+      <p class="eyebrow">02 · Hear me</p>
+      <h2>Press play. I’m right here.</h2>
+      <p class="section-copy">These are short on purpose—little pieces of me for you to keep.</p>
+      <div class="episodes" id="episodes"></div>
+    </section>
+
+    <section class="content-section" id="open-when">
+      <p class="eyebrow">03 · Open when</p>
+      <h2>For the days I can’t be there in person.</h2>
+      <p class="section-copy">Pick the envelope that feels right. There’s no wrong one.</p>
+      <div class="envelope-grid" id="envelopes"></div>
+    </section>
+
+    <section class="content-section map-section" id="between-us">
+      <p class="eyebrow">04 · Between us</p>
+      <h2>Different skies. Still the same us.</h2>
+      <div class="map-art">
+        <img id="map-image" src="assets/map-constellation.png" alt="A map and constellation artwork connecting two cities">
+        <div class="map-placeholder" id="map-placeholder">Add your map artwork at<br><code>assets/map-constellation.png</code></div>
+      </div>
+      <div class="location-details" id="location-details"></div>
+      <a class="download-link" id="map-download" href="assets/map-constellation.png" download>Download this little piece of us ↓</a>
+    </section>
+
+    <section class="final-note" id="final-note"></section>
+  </main>
+
+  <dialog class="letter-dialog" id="letter-dialog" aria-labelledby="letter-title">
+    <button class="dialog-close" type="button" id="close-letter" aria-label="Close letter">×</button>
+    <p class="eyebrow" id="letter-label"></p>
+    <h2 id="letter-title"></h2>
+    <div class="letter-body" id="letter-body"></div>
+    <button class="voice-letter-button" id="letter-audio-button" type="button" hidden>Play my voice note ♫</button>
+  </dialog>
+
+  <script src="data.js"></script>
+  <script src="sixmonths.js"></script>
+</body>
+</html>
