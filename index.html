@@ -6,10 +6,10 @@
     <title>For Mandyyy</title>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --pink: #ff4d6d; --cream: #fff5f5; }
+        :root { --pink: #ed6e8b; --cream: #fffafa; --ink: #412d46; --lilac: #9582b8; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
-            margin: 0; background: var(--cream); font-family: 'Quicksand', sans-serif; 
+            margin: 0; background: radial-gradient(circle at 18% 20%, #ffe3ea 0, transparent 30%), radial-gradient(circle at 80% 85%, #eee7ff 0, transparent 28%), var(--cream); font-family: 'Quicksand', sans-serif;
             height: 100vh; display: flex; justify-content: center; align-items: center; text-align: center;
             overflow: hidden; touch-action: manipulation;
         }
@@ -23,23 +23,19 @@
             100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
         }
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px); padding: 50px 30px; border-radius: 30px; 
-            box-shadow: 0 8px 32px 0 rgba(255, 77, 109, 0.2); border: 1px solid rgba(255, 255, 255, 0.2);
-            width: 90%; max-width: 400px; animation: fadeIn 1.5s ease;
-        }
+        body::before, body::after { content: ''; position: fixed; border: 1px solid rgba(237,110,139,.18); border-radius: 50%; pointer-events: none; }
+        body::before { width: 560px; height: 270px; transform: rotate(-25deg); top: -125px; right: -160px; } body::after { width: 520px; height: 250px; transform: rotate(42deg); bottom: -130px; left: -160px; }
+        .glass-card { background: rgba(255,255,255,.68); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); padding: 56px 30px; border-radius: 32px; box-shadow: 0 24px 60px rgba(100,64,95,.14); border: 1px solid rgba(255,255,255,.9); width: 90%; max-width: 430px; animation: fadeIn 1.1s ease; position: relative; overflow:hidden; }
 
         .elegant-title { 
-            font-family: 'Dancing Script', cursive; font-size: 3.5rem; 
-            background: linear-gradient(45deg, #ff4d6d, #ff8fa3); 
+            font-family: 'Dancing Script', cursive; font-size: clamp(3.3rem, 13vw, 4.6rem);
+            background: linear-gradient(110deg, #c95c79, #ed7891, #9a83be);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; 
         }
 
         .enter-btn { 
-            background: var(--pink); color: white; border: none; padding: 15px 40px; 
-            border-radius: 50px; font-size: 1.2rem; margin-top: 30px; cursor: pointer; 
-            box-shadow: 0 5px 15px rgba(255, 77, 109, 0.3); font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(105deg, #e26c88, #af87ae); color: white; border: none; padding: 15px 34px;
+            border-radius: 50px; font-size: 1rem; margin-top: 30px; cursor: pointer; box-shadow: 0 10px 20px rgba(198,92,122,.26); font-family: 'Quicksand', sans-serif;
             transition: 0.3s;
         }
         .enter-btn:active { transform: scale(0.95); }

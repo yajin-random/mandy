@@ -1,5 +1,41 @@
 const $ = (selector) => document.querySelector(selector);
 
+const backgroundMusic = $('#background-music');
+const musicToggle = $('#music-toggle');
+let musicWasStarted = false;
+backgroundMusic.volume = 0.15;
+
+function updateMusicToggle() {
+  const isPlaying = !backgroundMusic.paused;
+  musicToggle.textContent = isPlaying ? 'Ⅱ' : '♫';
+  musicToggle.setAttribute('aria-label', isPlaying ? 'Pause background music' : 'Play background music');
+  musicToggle.setAttribute('aria-pressed', String(isPlaying));
+}
+function startBackgroundMusic() {
+  if (musicWasStarted) return;
+  backgroundMusic.play().then(() => { musicWasStarted = true; updateMusicToggle(); }).catch(() => {});
+}
+function pauseBackgroundMusic() {
+  backgroundMusic.pause();
+  updateMusicToggle();
+}
+function resumeBackgroundMusic() {
+  backgroundMusic.play().then(() => { musicWasStarted = true; updateMusicToggle(); }).catch(() => {});
+}
+
+// Mobile browsers require a tap before audio can play, so the first tap starts it at 30%.
+document.addEventListener('pointerdown', startBackgroundMusic, { once: true });
+musicToggle.addEventListener('click', (event) => {
+  event.stopPropagation();
+  if (backgroundMusic.paused) {
+    backgroundMusic.play().then(() => { musicWasStarted = true; updateMusicToggle(); }).catch(() => {});
+  } else {
+    pauseBackgroundMusic();
+  }
+});
+backgroundMusic.addEventListener('play', updateMusicToggle);
+backgroundMusic.addEventListener('pause', updateMusicToggle);
+
 $('#anniversary-date').textContent = `Made for us · ${GIFT_CONFIG.anniversaryDate}`;
 $('#hero-copy').textContent = GIFT_CONFIG.heroCopy;
 $('#final-note').innerHTML = `<h2>${GIFT_CONFIG.finalTitle}</h2><p>${GIFT_CONFIG.finalMessage}</p>`;
@@ -29,8 +65,9 @@ document.querySelectorAll('[data-letter]').forEach((button) => {
     if (isAudioMessage && letter.audio) {
       currentLetterAudio = new Audio(`assets/audio/${letter.audio}`);
       letterAudioButton.onclick = () => currentLetterAudio.paused ? currentLetterAudio.play() : currentLetterAudio.pause();
-      currentLetterAudio.onplay = () => letterAudioButton.textContent = 'Pause my audio message Ⅱ';
+      currentLetterAudio.onplay = () => { pauseBackgroundMusic(); letterAudioButton.textContent = 'Pause my audio message Ⅱ'; };
       currentLetterAudio.onpause = () => letterAudioButton.textContent = 'Play my audio message ♫';
+      currentLetterAudio.onended = () => { resumeBackgroundMusic(); letterAudioButton.textContent = 'Play my audio message ♫'; };
     }
     dialog.showModal();
   });
@@ -46,3 +83,7 @@ mapImage.addEventListener('error', () => { mapImage.style.display = 'none'; if (
 mapImage.addEventListener('load', () => { if (mapPlaceholder) mapPlaceholder.style.display = 'none'; });
 
 $('#photo-booth-link').href = PHOTO_BOOTH.url;
+
+const documentary = $('#documentary');
+documentary.addEventListener('play', pauseBackgroundMusic);
+documentary.addEventListener('ended', resumeBackgroundMusic);

@@ -33,9 +33,12 @@ Put these files in these exact locations:
 assets/video/six-months-two-time-zones.mp4
 assets/video/six-months-poster.jpg
 assets/map-constellation.png
+assets/audio/background-music.mp3
 ```
 
 If you add an audio message to an individual letter, save it in `assets/audio/` and set that filename in the letter's `audio` field in `data.js`.
+
+`background-music.mp3` plays at 15% after her first tap (mobile browsers do not allow audio to start before a tap). It pauses whenever she starts the documentary or an audio letter, then resumes only when that media finishes naturally. The round music button at bottom-right lets her play or pause it herself.
 
 ## 4. Make the documentary
 
