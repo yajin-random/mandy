@@ -12,22 +12,6 @@ $('#timeline').innerHTML = TIMELINE.map((item) => `
   <article class="timeline-item"><p class="timeline-date">${item.date}</p><h3>${item.title}</h3><p>${item.memory}</p></article>
 `).join('');
 
-const episodeContainer = $('#episodes');
-EPISODES.forEach((episode, index) => {
-  const card = document.createElement('article');
-  card.className = 'episode';
-  card.innerHTML = `<div class="episode-header"><button class="episode-play" type="button" aria-label="Play ${episode.title}">▶</button><div><h3>${String(index + 1).padStart(2, '0')}. ${episode.title}</h3><p>${episode.description}</p></div></div><audio preload="metadata" src="assets/audio/${episode.file}"></audio>`;
-  const audio = card.querySelector('audio');
-  const playButton = card.querySelector('button');
-  playButton.addEventListener('click', () => {
-    document.querySelectorAll('.episode audio').forEach((otherAudio) => { if (otherAudio !== audio) otherAudio.pause(); });
-    if (audio.paused) audio.play(); else audio.pause();
-  });
-  audio.addEventListener('play', () => playButton.textContent = 'Ⅱ');
-  audio.addEventListener('pause', () => playButton.textContent = '▶');
-  episodeContainer.appendChild(card);
-});
-
 const dialog = $('#letter-dialog');
 const letterAudioButton = $('#letter-audio-button');
 let currentLetterAudio = null;
@@ -37,15 +21,16 @@ document.querySelectorAll('[data-letter]').forEach((button) => {
     const letter = LETTERS[Number(button.dataset.letter)];
     $('#letter-label').textContent = `Letter ${String(Number(button.dataset.letter) + 1).padStart(2, '0')}`;
     $('#letter-title').textContent = letter.title;
-    $('#letter-body').textContent = letter.body;
+    const isAudioMessage = letter.type === 'audio';
+    $('#letter-body').textContent = isAudioMessage ? 'I left you a little voice message.' : letter.body;
     if (currentLetterAudio) { currentLetterAudio.pause(); currentLetterAudio = null; }
-    letterAudioButton.hidden = !letter.audio;
-    letterAudioButton.textContent = 'Play my voice note ♫';
-    if (letter.audio) {
+    letterAudioButton.hidden = !isAudioMessage;
+    letterAudioButton.textContent = 'Play my audio message ♫';
+    if (isAudioMessage && letter.audio) {
       currentLetterAudio = new Audio(`assets/audio/${letter.audio}`);
       letterAudioButton.onclick = () => currentLetterAudio.paused ? currentLetterAudio.play() : currentLetterAudio.pause();
-      currentLetterAudio.onplay = () => letterAudioButton.textContent = 'Pause my voice note Ⅱ';
-      currentLetterAudio.onpause = () => letterAudioButton.textContent = 'Play my voice note ♫';
+      currentLetterAudio.onplay = () => letterAudioButton.textContent = 'Pause my audio message Ⅱ';
+      currentLetterAudio.onpause = () => letterAudioButton.textContent = 'Play my audio message ♫';
     }
     dialog.showModal();
   });
@@ -56,5 +41,8 @@ dialog.addEventListener('click', (event) => { if (event.target === dialog) close
 
 $('#location-details').innerHTML = [GIFT_CONFIG.cityOne, GIFT_CONFIG.cityTwo].map((city) => `<div class="location-card"><strong>${city.name}</strong><span>${city.timezone}</span></div>`).join('');
 const mapImage = $('#map-image');
-mapImage.addEventListener('error', () => { mapImage.style.display = 'none'; $('#map-placeholder').style.display = 'block'; $('#map-download').hidden = true; });
-mapImage.addEventListener('load', () => { $('#map-placeholder').style.display = 'none'; });
+const mapPlaceholder = $('#map-placeholder');
+mapImage.addEventListener('error', () => { mapImage.style.display = 'none'; if (mapPlaceholder) mapPlaceholder.style.display = 'block'; $('#map-download').hidden = true; });
+mapImage.addEventListener('load', () => { if (mapPlaceholder) mapPlaceholder.style.display = 'none'; });
+
+$('#photo-booth-link').href = PHOTO_BOOTH.url;

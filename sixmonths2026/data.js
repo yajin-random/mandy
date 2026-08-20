@@ -8,7 +8,7 @@ const GIFT_CONFIG = {
   cityOne: { name: 'Kollam', timezone: '[GMT+5:30]' },
   cityTwo: { name: 'Cagayan De Oro', timezone: '[GMT+8]' },
   finalTitle: 'And this is only chapter six, of an infinite amount to come.',
-  finalMessage: 'I know the distance can feel big sometimes, We might have misunderstandings, But every call, every goofy thing, every “I miss you” and "I love you" has made this feel so much more easier than it is. Thank you for being my universe. Thank you for making love so easy. I love you.'
+  finalMessage: `I know the distance can feel big sometimes, We might have misunderstandings, But every call, every goofy thing, every “I miss you” and "I love you" has made this feel so much more easier than it is. Thank you for being my universe. Thank you for making love so easy. I love you.`
 };
 
 // Add 6–10 meaningful milestones. `image` is optional; it is not displayed yet.
@@ -19,27 +19,29 @@ const TIMELINE = [
   { date: '[21.08.2026]', title: 'Six months', memory: 'Genuinely from the bottom of my heart, This was the best 6 months of my life. You gave me hope, hope in love from someone who thought I would never have a special someone, An extra special person came into my life to flip it around in a good way' }
 ];
 
-// Place each MP3 in assets/audio/ with the matching file name.
-const EPISODES = [
-  { title: 'How you became my person', description: '[2–5 minutes: how she became important to you.]', file: '01-how-you-became-my-person.mp3' },
-  { title: 'Things I love about you', description: '[Your specific, real reasons.]', file: '02-things-i-love-about-you.mp3' },
-  { title: 'My favourite memories of us', description: '[Tell the stories she would recognise instantly.]', file: '03-our-favourite-memories.mp3' },
-  { title: 'For when you miss me', description: '[A calm, reassuring note for hard days.]', file: '04-for-when-you-miss-me.mp3' },
-  { title: 'For your future self', description: '[A message she can return to much later.]', file: '05-for-your-future-self.mp3' }
+/*
+  Each envelope can be one kind of message:
+  - type: 'text'  → write its letter in `body`.
+  - type: 'audio' → add an MP3 under assets/audio/ and use its filename in `audio`.
+  Do not use both for one envelope. You can change the type later whenever you want.
+*/
+const LETTERS = [
+  { title: 'Open when you miss me', type: 'text', body: '[Write this letter here.]', audio: '' },
+  { title: 'Open when you can’t sleep', type: 'text', body: '[Write this letter here.]', audio: '' },
+  { title: 'Open when you need a laugh', type: 'text', body: '[Write this letter here.]', audio: '' },
+  { title: 'Open when you feel insecure', type: 'text', body: '[Write this letter here.]', audio: '' },
+  { title: 'Open when you feel stressed', type: 'text', body: '[Write this letter here.]', audio: '' },
+  { title: 'Open when you feel lonely', type: 'text', body: '[Write this letter here.]', audio: '' },
+  { title: 'Open when we have had a disagreement', type: 'text', body: '[Write this letter here.]', audio: '' },
+  { title: 'Open when you need motivation', type: 'text', body: '[Write this letter here.]', audio: '' },
+  { title: 'Open when you want to feel close to me', type: 'text', body: '[Write this letter here.]', audio: '' },
+  { title: 'Open when you are having a bad day', type: 'text', body: '[Write this letter here.]', audio: '' },
+  { title: 'Open when you forget how loved you are', type: 'text', body: '[Write this letter here.]', audio: '' },
+  { title: 'Open on our six-month anniversary', type: 'text', body: '[Write your anniversary letter here.]', audio: '' }
 ];
 
-// Each body can be 150–350 words. `audio` is optional; use '' when there is no extra voice note.
-const LETTERS = [
-  { title: 'Open when you miss me', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when you can’t sleep', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when you need a laugh', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when you feel insecure', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when you feel stressed', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when you feel lonely', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when we have had a disagreement', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when you need motivation', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when you want to feel close to me', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when you are having a bad day', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when you forget how loved you are', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open on our six-month anniversary', body: '[Write your anniversary letter here.]', audio: '' }
-];
+// Paste the URL of your finished external photo-booth website here.
+const PHOTO_BOOTH = {
+  url: 'https://[PASTE-YOUR-PHOTO-BOOTH-URL-HERE]',
+  returnPath: 'sixmonths2026/index.html#final-note'
+};
