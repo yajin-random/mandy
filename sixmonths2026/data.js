@@ -26,22 +26,22 @@ const TIMELINE = [
   Do not use both for one envelope. You can change the type later whenever you want.
 */
 const LETTERS = [
-  { title: 'Open when you miss me', type: 'text', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when you can’t sleep', type: 'text', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when you need a laugh', type: 'text', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when you feel insecure', type: 'text', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when you feel stressed', type: 'text', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when you feel lonely', type: 'text', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when we have had a disagreement', type: 'text', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when you need motivation', type: 'text', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when you want to feel close to me', type: 'text', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when you are having a bad day', type: 'text', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open when you forget how loved you are', type: 'text', body: '[Write this letter here.]', audio: '' },
-  { title: 'Open on our six-month anniversary', type: 'text', body: '[Write your anniversary letter here.]', audio: '' }
+  { title: 'Open when you miss me', type: 'text', body: '[Awww my sweeeet babyyy, I will be back soon wherever I am probably ASAP cause I will feel the same cutieee]', audio: '' },
+  { title: 'Open when you can’t sleep', type: 'text', body: '[CALL ME IDC WHERE I AM, CALL ME I WILL PICK UP, if not, I will be there soon, Not going anywhere]', audio: '' },
+  { title: 'Open when you need a laugh', type: 'audio', body: '[Write this letter here.]', audio: 'saminamina.mp3' },
+  { title: 'Open when you feel insecure', type: 'audio', body: '[Write this letter here.]', audio: 'insecure.mp3' },
+  { title: 'Open when you feel stressed', type: 'audio', body: '[Write this letter here.]', audio: 'chillaxxx.mp3' },
+  { title: 'Open when you feel lonely', type: 'audio', body: '[Write this letter here.]', audio: 'lonely.mp3' },
+  { title: 'Open when we have had a disagreement', type: 'audio', body: '[Write this letter here.]', audio: 'disagreement.mp3' },
+  { title: 'Open when you need motivation', type: 'audio', body: '[Write this letter here.]', audio: 'peak_motivation.mp3' },
+  { title: 'Open when you want to feel close to me', type: 'audio', body: '[Write this letter here.]', audio: 'close.mp3' },
+  { title: 'Open when you are having a bad day', type: 'audio', body: '[Write this letter here.]', audio: 'Bad_day.mp3' },
+  { title: 'Open when you forget how loved you are', type: 'audio', body: '[Write this letter here.]', audio: 'I_love_you.mp3' },
+  { title: 'Open on our six-month anniversary', type: 'audio', body: '[Write your anniversary letter here.]', audio: '6months.mp3' }
 ];
 
 // Paste the URL of your finished external photo-booth website here.
 const PHOTO_BOOTH = {
-  url: 'https://[PASTE-YOUR-PHOTO-BOOTH-URL-HERE]',
+  url: 'https://getangie.com/photobooth',
   returnPath: 'sixmonths2026/index.html#final-note'
 };
